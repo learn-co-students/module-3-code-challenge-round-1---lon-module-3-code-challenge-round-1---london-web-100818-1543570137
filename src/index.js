@@ -21,7 +21,7 @@ const renderImageCard = image => {
   imageTag.src = image.url
   imageTitle.innerText = image.name
   imageLikes.innerText = image.like_count
-  likeBtn.addEventListener('click', event => updateLikesAndRender(event, image))
+  likeBtn.addEventListener('click', () => updateLikesAndRender(image))
   renderCommentList(image.comments)
   commentForm.addEventListener('submit', event => {
     event.preventDefault()
@@ -36,11 +36,16 @@ const renderCommentList = comments => {
 const renderComment = comment => {
   const commentListEl = document.createElement('li')
   commentListEl.innerText = comment.content
-
   commentList.appendChild(commentListEl)
+
+  const deleteBtn = document.createElement('button')
+  deleteBtn.innerText = "DELETE"
+  commentListEl.appendChild(deleteBtn)
+  
+  deleteBtn.addEventListener('click', () => deleteCommentAndRender(commentListEl, comment))
 }
 
-const updateLikesAndRender = (event, image) => {
+const updateLikesAndRender = image => {
   const imageToUpdate = {
     image_id: image.id,
     like_count: ++image.like_count
@@ -58,11 +63,16 @@ const updateCommentsAndRender = image => {
   }
 
   commentForm.reset()
-  renderComment(commentToCreate)
   commentsAPI.create(commentToCreate)
+    .then(renderComment)
 }
 
-imagesAPI.get(1525)
+const deleteCommentAndRender = (elementToDelete, commentToDelete) => {
+  commentList.removeChild(elementToDelete)
+  commentsAPI.delete(commentToDelete.id)
+}
+
+imagesAPI.get(imageId)
   .then(renderImageCard)
 
 
